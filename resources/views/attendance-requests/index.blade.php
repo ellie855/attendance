@@ -35,6 +35,8 @@
                 <div style="color: #555; font-size: 13px; margin-top: 4px;">
                     理由: {{ $request->reason }}
                 </div>
+
+                
                 <div style="color: #888; font-size: 11px; margin-top: 4px;">
                     申請日時: {{ $request->created_at->format('Y-m-d H:i') }}
                 </div>
