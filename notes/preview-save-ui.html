@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>保存UIプレビュー</title>
+<style>
+    body {
+        font-family: -apple-system, "Hiragino Sans", sans-serif;
+        background: #b5d8f0;
+        padding: 40px;
+        margin: 0;
+    }
+    .card {
+        background: #d4e9f7;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 700px;
+        margin: 0 auto 20px;
+    }
+    .flash-success {
+        background: #d4edda;
+        color: #155724;
+        padding: 12px;
+        margin-bottom: 16px;
+        border-radius: 6px;
+        text-align: center;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        transition: opacity 0.5s;
+    }
+    .flash-success.hide {
+        opacity: 0;
+    }
+    .card-title {
+        margin: 0 0 16px;
+        font-size: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    /* 保存状態バッジ */
+    .save-status {
+        font-size: 13px;
+        font-weight: normal;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .save-status.saved {
+        background: #e5e7eb;
+        color: #6b7280;
+    }
+    .save-status.dirty {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    .save-status.saving {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    textarea {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+    .actions {
+        text-align: right;
+        margin-top: 12px;
+    }
+    button {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #16a34a;
+    }
+    .note {
+        max-width: 700px;
+        margin: 30px auto 0;
+        color: #333;
+        font-size: 14px;
+        background: rgba(255,255,255,0.6);
+        padding: 12px 16px;
+        border-radius: 8px;
+    }
+    .note strong {
+        display: block;
+        margin-bottom: 6px;
+    }
+</style>
+</head>
+<body>
+
+<div id="flash" class="flash-success" style="display: none;">
+    ✓ メモを保存しました
+</div>
+
+<div class="card">
+    <h2 class="card-title">
+        今日の作業内容
+        <span id="status" class="save-status saved">
+            <span id="statusIcon">✓</span>
+            <span id="statusText">保存済み</span>
+        </span>
+    </h2>
+    <textarea id="editor" rows="4" placeholder="今日やったことを書いてください">決済APIのリファクタリングとPRレビュー対応</textarea>
+    <div class="actions">
+        <button onclick="save()">保存</button>
+    </div>
+</div>
+
+<div class="note">
+    <strong>試し方</strong>
+    ・textarea を編集してみてください(バッジがオレンジ「未保存」に変わります)<br>
+    ・保存ボタンを押すと:上に緑帯が出て 1.5 秒で消える + バッジが「保存中」→「保存済み」<br>
+    ・時間が経った後もバッジで状態が一目でわかる
+</div>
+
+<script>
+    const editor = document.getElementById('editor');
+    const status = document.getElementById('status');
+    const statusIcon = document.getElementById('statusIcon');
+    const statusText = document.getElementById('statusText');
+    const flash = document.getElementById('flash');
+
+    let savedContent = editor.value;
+
+    function updateStatus() {
+        if (editor.value === savedContent) {
+            status.className = 'save-status saved';
+            statusIcon.textContent = '✓';
+            statusText.textContent = '保存済み';
+        } else {
+            status.className = 'save-status dirty';
+            statusIcon.textContent = '●';
+            statusText.textContent = '未保存の変更あり';
+        }
+    }
+
+    editor.addEventListener('input', updateStatus);
+
+    function save() {
+        status.className = 'save-status saving';
+        statusIcon.textContent = '…';
+        statusText.textContent = '保存中';
+
+        setTimeout(() => {
+            savedContent = editor.value;
+            updateStatus();
+
+            flash.style.display = 'block';
+            flash.classList.remove('hide');
+            setTimeout(() => flash.classList.add('hide'), 1000);
+            setTimeout(() => { flash.style.display = 'none'; }, 1500);
+        }, 400);
+    }
+</script>
+
+</body>
+</html>

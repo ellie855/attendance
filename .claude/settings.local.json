@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php --version)",
+      "Bash(composer --version)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\Herd\" -ErrorAction SilentlyContinue | Format-Table Mode, Name; Write-Output '---bin---'; Get-ChildItem \"C:\\\\Program Files\\\\Herd\\\\bin\" -ErrorAction SilentlyContinue | Select-Object Name; Write-Output '---resources---'; Get-ChildItem \"C:\\\\Program Files\\\\Herd\\\\resources\" -Depth 2 -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^\\(php|composer\\)' } | Select-Object FullName)"
+    ]
+  }
+}
