@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>vw 拡大縮小プレビュー</title>
+<style>
+    body {
+        font-family: -apple-system, "Hiragino Sans", sans-serif;
+        background: #f5deb3;
+        min-width: 1400px;
+        margin: 40px 40px 40px 280px;
+        padding: 0 20px;
+    }
+    .info-bar {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: monospace;
+        z-index: 100;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    .card {
+        background: rgba(255,255,255,0.55);
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        margin-bottom: 16px;
+    }
+    .card-title { margin: 0 0 12px; font-size: 1vw; }
+    .clock-time {
+        font-size: 8vw;
+        font-weight: bold;
+        font-family: monospace;
+        letter-spacing: 0.2vw;
+        margin: 0.5vw 0;
+    }
+    .clock-date { font-size: 1vw; color: #666; margin-top: 0.3vw; }
+    .actions { display: flex; gap: 1vw; margin: 1.5vw 0; justify-content: center; }
+    .btn {
+        padding: 1.3vw 3vw;
+        font-size: 1.4vw;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        min-width: 12vw;
+    }
+    .btn-out { background: #ef4444; color: white; }
+    .btn-out2 { background: #ef4444; color: white; opacity: 0.9; }
+    .info-box {
+        padding: 0.8vw 1vw;
+        font-size: 1vw;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 8px;
+        margin-bottom: 0.5vw;
+    }
+    .card-main { display: flex; gap: 1vw; }
+    .left { flex: 2; }
+    .right { flex: 1; display: flex; flex-direction: column; }
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5vw;
+        margin-top: 1vw;
+    }
+    .summary-card {
+        background: rgba(255,255,255,0.55);
+        border-radius: 12px;
+        padding: 0.8vw;
+    }
+    .summary-label { font-size: 0.75vw; color: #666; margin-bottom: 0.2vw; }
+    .summary-value { font-size: 1.3vw; font-weight: bold; }
+    .history {
+        background: rgba(255,255,255,0.55);
+        border-radius: 12px;
+        padding: 1vw;
+    }
+    .history h2 { font-size: 1.2vw; margin: 0 0 0.5vw; }
+    .log-row {
+        display: flex;
+        gap: 1vw;
+        padding: 0.5vw 0.8vw;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        font-size: 0.9vw;
+    }
+    .log-time { min-width: 8vw; color: #555; }
+</style>
+</head>
+<body>
+
+<div class="info-bar">
+    現在の画面幅: <span id="width">-</span>px<br>
+    1vw = <span id="vw">-</span>px
+</div>
+
+<div class="grid">
+    <div class="left-col">
+        <div class="card">
+            <h1 class="card-title">勤怠管理</h1>
+            <div class="card-main">
+                <div class="left">
+                    <div class="clock-date">2026-07-21 (火)</div>
+                    <div class="clock-time">19:41</div>
+                </div>
+                <div class="right">
+                    <div class="info-box">勤怠修正申請</div>
+                    <div class="info-box" style="background: #d4edda; color: #155724;">勤務中</div>
+                    <div class="info-box">岡田 歩翔</div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-out">退勤</button>
+                <button class="btn btn-out2">休憩に入る</button>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 1vw;">
+            <div style="font-size: 1vw; font-weight: bold;">今日の作業内容</div>
+            <textarea style="width: 100%; padding: 0.5vw; margin-top: 0.5vw; font-size: 1vw;" rows="2" placeholder="今日やったことを書いてください"></textarea>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-label">今月の総勤務時間</div>
+                <div class="summary-value">0<span style="font-size: 0.9vw;">時間</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">出勤日数</div>
+                <div class="summary-value">4<span style="font-size: 0.9vw;">日</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">平均勤務時間</div>
+                <div class="summary-value">0<span style="font-size: 0.9vw;">時間</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">連続出勤</div>
+                <div class="summary-value">1<span style="font-size: 0.9vw;">日</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="history">
+        <h2>履歴</h2>
+        <div class="log-row"><span class="log-time">2026-07-21 18:27</span><span style="color: #f59e0b;">● 休憩終了</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #ef4444;">● 退勤</span> 0時間0分</div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #f59e0b;">● 休憩開始</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #f59e0b;">● 休憩開始</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #f59e0b;">● 休憩終了</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #f59e0b;">● 休憩開始</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #f59e0b;">● 休憩終了</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #f59e0b;">● 休憩開始</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #10b981;">● 出勤</span></div>
+        <div class="log-row"><span class="log-time">2026-07-21 18:19</span><span style="color: #ef4444;">● 退勤</span> 0時間0分</div>
+    </div>
+</div>
+
+<script>
+    function updateSize() {
+        const w = window.innerWidth;
+        document.getElementById('width').textContent = w;
+        document.getElementById('vw').textContent = (w * 0.01).toFixed(1);
+    }
+    updateSize();
+    window.addEventListener('resize', updateSize);
+</script>
+
+</body>
+</html>

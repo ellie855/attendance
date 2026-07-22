@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DailyNoteController;
 use App\Http\Controllers\AttendanceRequestController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\AttendanceRequestController as AdminAttendanceRequestController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/attendances') : redirect('/login');
@@ -16,7 +18,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // プロフィール (Breeze 標準、ログイン必須)
-    Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/profile',     [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',   [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile',  [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -32,7 +34,7 @@ Route::get('/dashboard', function () {
     Route::delete('/posts/{post}',        [PostController::class, 'destroy'])->name('posts.destroy');
 
 // 勤怠 (ログイン必須)
-    Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/attendances',                    [AttendanceController::class, 'index'])->name('attendances.index');
     Route::post('/attendances/clock-in',          [AttendanceController::class, 'clockIn'])->name('attendances.clock-in');
     Route::post('/attendances/clock-out',         [AttendanceController::class, 'clockOut'])->name('attendances.clock-out');
@@ -50,12 +52,21 @@ Route::get('/dashboard', function () {
     Route::get('/attendance-requests/{attendanceRequest}/edit',  [AttendanceRequestController::class, 'edit'])->name('attendance-requests.edit');
     Route::put('/attendance-requests/{attendanceRequest}',       [AttendanceRequestController::class, 'update'])->name('attendance-requests.update');
     Route::delete('/attendance-requests/{attendanceRequest}',    [AttendanceRequestController::class, 'destroy'])->name('attendance-requests.destroy');
-
-
-
-
-
-
 });
+
+
+// 管理者専用
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/users',                                             [AdminUserController::class, 'index'])->name('users.index');
+    Route::put('/users/{user}/role',                                 [AdminUserController::class, 'updateRole'])->name('users.update-role');
+    Route::delete('/users/{user}',                                   [AdminUserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/attendance-requests',                               [AdminAttendanceRequestController::class, 'index'])->name('attendance-requests.index');
+    Route::put('/attendance-requests/{attendanceRequest}/approve',   [AdminAttendanceRequestController::class, 'approve'])->name('attendance-requests.approve');
+    Route::put('/attendance-requests/{attendanceRequest}/reject',    [AdminAttendanceRequestController::class, 'reject'])->name('attendance-requests.reject');
+});
+
+
+
+
 
 require __DIR__.'/auth.php';

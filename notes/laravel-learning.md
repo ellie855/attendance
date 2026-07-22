@@ -120,3 +120,14 @@ docker start php-study-db      DB起動
 1. `php artisan serve` 動いてる?
 2. `docker ps` で MySQL コンテナ動いてる?
 3. エラー画面の一番上の赤い文字を読む(英語でも雰囲気で分かる)
+
+---
+
+## Git の基本 3コマンド
+
+作業のたびにこの3つを順番に:
+```
+git add .                     変更を全部ステージング(準備)
+git commit -m "何を変えた"     履歴に刻む(メッセージ必須)
+git push                      GitHub に送る(バックアップ・共有)
+```

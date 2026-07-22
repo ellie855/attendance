@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
     <style>
-        body { font-family: 'BIZ UDPGothic', 'Space Grotesk', sans-serif; max-width: 1200px; margin: 40px auto 40px 280px; padding: 0 20px; color: #1a1a1a; }
+        body { font-family: 'BIZ UDPGothic', 'Space Grotesk', sans-serif; max-width: none; margin: 40px 40px 40px 280px; padding: 0 20px; color: #1a1a1a; }
         h1 { font-family: 'Space Grotesk', 'BIZ UDPGothic', sans-serif; font-weight: 700; border-bottom: 2px solid #333; padding-bottom: 8px; letter-spacing: -0.5px; }
         h2 { font-family: 'Space Grotesk', 'BIZ UDPGothic', sans-serif; font-weight: 600; letter-spacing: -0.3px; }
         a { color: #06c; }
@@ -139,35 +139,106 @@
         .summary-card .unit { font-size: 14px; color: #888; font-weight: normal; margin-left: 4px; }
         .summary-card .icon { font-size: 16px; color: #06c; margin-bottom: 6px; }
         .dashboard-right h2 { margin-top: 0; }
+
+        /* 磨いた見た目 */
         body { margin-top: 20px; margin-bottom: 20px; }
-        .dashboard-left { gap: 12px; }
-        .dashboard-grid { gap: 16px; margin-bottom: 16px; align-items: start; }
-        .dashboard-left > .card:first-child { padding: 32px; }
-        .card-title { font-size: 16px; }
-        .clock-time { font-size: 140px; letter-spacing: 2px; }
-        .clock-date { font-size: 16px; margin-top: 6px; }
-        .info-box { padding: 12px 16px; font-size: 16px; }
-        .actions { margin: 20px 0; gap: 16px; }
-        .actions button, .btn-link { padding: 22px 40px; font-size: 22px; min-width: 200px; font-weight: bold; }
-        .dashboard-left > .card:nth-child(2) button { padding: 10px 24px; font-size: 14px; min-width: auto; }
-        .dashboard-left > .card:nth-child(2) { padding: 14px 16px; gap: 8px; }
-        .dashboard-left > .card:nth-child(2) .card-title { font-size: 14px; }
+        .dashboard-grid { gap: 20px; margin-bottom: 20px; align-items: start; }
+        .dashboard-left { gap: 16px; }
+        .card { padding: 24px; }
+        .card-title {
+            margin: 0 0 16px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #444;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding-bottom: 8px;
+        }
+
+        /* 勤怠カード: 時計と info-box を中央寄せで並列 */
+        .card-main {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 0;
+        }
+        .card-main .left { text-align: center; flex: none; }
+        .card-main .right { display: flex; flex-direction: column; gap: 8px; min-width: 200px; flex: none; }
+        .clock-time { font-size: 96px; font-weight: bold; font-family: monospace; letter-spacing: 2px; line-height: 1; }
+        .clock-date { font-size: 14px; color: #666; margin-bottom: 4px; }
+        .info-box { padding: 10px 16px; font-size: 14px; }
+
+        /* 打刻ボタン */
+        .actions { margin: 20px 0 0; gap: 16px; justify-content: center; }
+        .actions button, .btn-link {
+            padding: 20px 48px;
+            font-size: 20px;
+            min-width: 200px;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+        .actions button:hover, .btn-link:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.2); }
+
+        /* 作業内容カード */
+        .dashboard-left > .card:nth-child(2) { padding: 16px 20px; }
+        .dashboard-left > .card:nth-child(2) button { padding: 8px 20px; font-size: 13px; min-width: auto; }
         .dashboard-left > .card:nth-child(2) textarea { min-height: 60px; height: 60px; font-size: 13px; }
-        .summary-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .summary-card { padding: 12px; }
-        .summary-card .value { font-size: 20px; }
-        .summary-card .label { font-size: 11px; margin-bottom: 2px; }
+
+        /* サマリー: 色付き4カード */
+        .summary-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .summary-card { padding: 16px; border-left: 4px solid #10b981; transition: all 0.2s; }
+        .summary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .summary-grid .summary-card:nth-child(2) { border-left-color: #06c; }
+        .summary-grid .summary-card:nth-child(3) { border-left-color: #f59e0b; }
+        .summary-grid .summary-card:nth-child(4) { border-left-color: #ef4444; }
+        .summary-card .label { font-size: 11px; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .summary-card .value { font-size: 28px; letter-spacing: -1px; line-height: 1; }
         .summary-card .icon { font-size: 14px; margin-bottom: 2px; }
+
+        /* 履歴: カラム揃え */
         .dashboard-right { display: flex; flex-direction: column; }
-        .dashboard-right h2 { font-size: 18px; }
-        .history-list { flex: 1; max-height: calc(100vh - 180px); overflow-y: auto; }
-        .log-row { padding: 8px 12px; gap: 12px; }
-        .log-time { min-width: 130px; font-size: 13px; }
+        .dashboard-right h2 { font-size: 18px; margin-bottom: 12px; }
+        .history-list { flex: 1; max-height: calc(100vh - 140px); overflow-y: auto; }
+        .log-row {
+            display: grid;
+            grid-template-columns: 130px 100px 80px 60px;
+            gap: 12px;
+            padding: 10px 16px;
+            align-items: center;
+        }
+        .log-time { min-width: auto; font-size: 13px; }
+        .log-type { font-size: 13px; }
+        .log-duration { padding: 2px 6px; text-align: center; font-size: 11px; }
+        .log-edit { padding: 4px 8px; font-size: 11px; text-align: center; }
+
+        /* バッジ */
         .save-status {display: inline-flex;align-items: center;gap: 4px;}
         .save-status.saved {background: #e5e7eb;color: #6b7280;}
         .save-status.dirty {background: #fef3c7;color: #92400e;}
         .log-type.break_start, .log-type.break_end { color: #f59e0b; }
-</style>
+
+        /* 幅が狭い PC (1280px 以下) */
+       @media (max-width: 1280px) {
+           .clock-time { font-size: 100px; }
+           .actions button, .btn-link { padding: 18px 36px; font-size:18px; min-width: 140px; }
+           body { max-width: 100%; margin-right: 20px; }
+       }
+
+       /*　画面が狭い時、全体を小さく　（１０２４px　以下）*/
+       @media (max-width: 1024px) {
+           body {max-width: 100%; margin-right: 20px; }
+           .clock-time { font-size: 80px; }
+           .actions button, .btn-link { padding: 14px 24px; font-size: 15px; min-width: 110px; }
+           .card { padding: 16px; }
+           .dashboard-left > .card:first-child { padding: 20; }
+           .summary-card { padding: 8px; }
+           .summary-card .value { font-size: 16px; }
+           .log-row { padding: 6px 10px; gap: 8px; }
+           .log-time { min-width: 110px; font-size: 12px; }
+       }
+       </style>
 </head>
 <body>
     <div class="color-picker">
@@ -178,6 +249,7 @@
         <button class="color-swatch" data-bg="#f5d1dd" style="background:#fce4ec" title="ピンク"></button>
         <button class="color-swatch" data-bg="#0f1729" data-dark="true" style="background:#0f1729" title="ダーク"></button>
     </div>
+
     <aside class="sidebar">
 
         <a href="/" class="sidebar-brand" style="text-decoration: none; color: inherit;">
@@ -202,6 +274,23 @@
                 <i class="bi bi-megaphone-fill sidebar-icon"></i>
                 <span class="sidebar-label">掲示板</span>
             </a>
+            @auth
+                @if (auth()->user()->isAdmin())
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-link">
+                        <i class="bi bi-people-fill sidebar-icon"></i>
+                        <span class="sidebar-label">ユーザー管理</span>
+                    </a>
+                @endif
+            @endauth
+
+            @auth
+                @if (auth()->user()->isAdmin())
+                    <a href="{{ route('admin.attendance-requests.index') }}" class="sidebar-link">
+                        <i class="bi bi-check2-square sidebar-icon"></i>
+                        <span class="sidebar-label">承認待ち</span>
+                    </a>
+                @endif
+            @endauth
 
         </nav>
 

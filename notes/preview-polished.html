@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>磨いた見た目プレビュー</title>
+<style>
+    body {
+        font-family: -apple-system, "Hiragino Sans", "BIZ UDPGothic", sans-serif;
+        background: #f5deb3;
+        margin: 40px auto;
+        padding: 0 20px;
+        max-width: 1500px;
+        color: #1a1a1a;
+    }
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    .dashboard-left { display: flex; flex-direction: column; gap: 16px; }
+    .card {
+        background: rgba(255,255,255,0.55);
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    }
+    .card-title {
+        margin: 0 0 16px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #444;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding-bottom: 8px;
+    }
+
+    /* 勤怠カード内: 時計 + info-box を左右詰めて中央 */
+    .card-main {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 0;
+    }
+    .clock-block { text-align: center; }
+    .clock-date { font-size: 14px; color: #666; margin-bottom: 4px; }
+    .clock-time { font-size: 96px; font-weight: bold; font-family: monospace; letter-spacing: 2px; line-height: 1; }
+    .info-block { display: flex; flex-direction: column; gap: 8px; min-width: 200px; }
+    .info-box {
+        padding: 10px 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 8px;
+        background: white;
+        text-align: center;
+        font-size: 14px;
+    }
+    .status-on { background: #d4edda; color: #155724; font-weight: bold; }
+
+    /* 打刻ボタン */
+    .actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .btn {
+        padding: 20px 48px;
+        font-size: 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        min-width: 200px;
+        transition: all 0.2s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .btn-in { background: #10b981; color: white; }
+    .btn-out { background: #ef4444; color: white; }
+    .btn-break { background: #f59e0b; color: white; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.2); }
+
+    /* 作業内容カード */
+    .note-card { padding: 16px 20px; }
+    .note-card textarea {
+        width: 100%;
+        padding: 10px;
+        font-size: 13px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        resize: vertical;
+        min-height: 60px;
+    }
+
+    /* サマリーカード(色付き) */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    .summary-card {
+        background: white;
+        border-radius: 10px;
+        padding: 16px;
+        border-left: 4px solid #10b981;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        transition: all 0.2s;
+    }
+    .summary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .summary-card:nth-child(2) { border-left-color: #06c; }
+    .summary-card:nth-child(3) { border-left-color: #f59e0b; }
+    .summary-card:nth-child(4) { border-left-color: #ef4444; }
+    .summary-label { font-size: 11px; color: #666; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .summary-value { font-size: 28px; font-weight: 700; color: #1a1a1a; letter-spacing: -1px; line-height: 1; }
+    .summary-unit { font-size: 13px; color: #888; margin-left: 4px; font-weight: normal; }
+
+    /* 履歴カード(整列) */
+    .dashboard-right { display: flex; flex-direction: column; }
+    .history-title { margin: 0 0 12px; font-size: 18px; font-weight: 600; }
+    .history-list {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        max-height: 520px;
+        overflow-y: auto;
+    }
+    .log-row {
+        display: grid;
+        grid-template-columns: 130px 90px 70px 60px;
+        gap: 12px;
+        padding: 10px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        align-items: center;
+        transition: background 0.15s;
+    }
+    .log-row:hover { background: rgba(0,0,0,0.02); }
+    .log-row:last-child { border-bottom: none; }
+    .log-time { font-family: monospace; color: #555; font-size: 13px; }
+    .log-type { font-size: 13px; font-weight: bold; }
+    .log-type-in { color: #10b981; }
+    .log-type-out { color: #ef4444; }
+    .log-type-break { color: #f59e0b; }
+    .log-duration {
+        font-size: 11px;
+        background: #d1fae5;
+        color: #047857;
+        padding: 2px 6px;
+        border-radius: 4px;
+        text-align: center;
+        font-weight: bold;
+    }
+    .log-edit {
+        padding: 4px 8px;
+        background: #06c;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 11px;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+
+<div class="dashboard-grid">
+    <div class="dashboard-left">
+
+        <div class="card">
+            <h1 class="card-title">勤怠管理</h1>
+            <div class="card-main">
+                <div class="clock-block">
+                    <div class="clock-date">2026-07-22 (水)</div>
+                    <div class="clock-time">19:41</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-box">勤怠修正申請</div>
+                    <div class="info-box status-on">勤務中</div>
+                    <div class="info-box">岡田 歩翔</div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-out">退勤</button>
+                <button class="btn btn-break">休憩に入る</button>
+            </div>
+        </div>
+
+        <div class="card note-card">
+            <div class="card-title" style="margin-bottom: 8px;">今日の作業内容</div>
+            <textarea placeholder="今日やったことを書いてください">決済APIのリファクタリング</textarea>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-label">今月の総勤務時間</div>
+                <div class="summary-value">152<span class="summary-unit">時間</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">出勤日数</div>
+                <div class="summary-value">18<span class="summary-unit">日</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">平均勤務時間</div>
+                <div class="summary-value">8.4<span class="summary-unit">時間</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">連続出勤</div>
+                <div class="summary-value">5<span class="summary-unit">日</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-right">
+        <div class="history-title">履歴</div>
+        <div class="history-list">
+            <div class="log-row">
+                <span class="log-time">2026-07-22 18:27</span>
+                <span class="log-type log-type-break">● 休憩終了</span>
+                <span></span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+            <div class="log-row">
+                <span class="log-time">2026-07-22 18:00</span>
+                <span class="log-type log-type-out">● 退勤</span>
+                <span class="log-duration">8時間0分</span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+            <div class="log-row">
+                <span class="log-time">2026-07-22 17:30</span>
+                <span class="log-type log-type-break">● 休憩開始</span>
+                <span></span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+            <div class="log-row">
+                <span class="log-time">2026-07-22 12:15</span>
+                <span class="log-type log-type-break">● 休憩終了</span>
+                <span></span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+            <div class="log-row">
+                <span class="log-time">2026-07-22 11:30</span>
+                <span class="log-type log-type-break">● 休憩開始</span>
+                <span></span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+            <div class="log-row">
+                <span class="log-time">2026-07-22 09:02</span>
+                <span class="log-type log-type-in">● 出勤</span>
+                <span></span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+            <div class="log-row">
+                <span class="log-time">2026-07-21 18:30</span>
+                <span class="log-type log-type-out">● 退勤</span>
+                <span class="log-duration">8時間30分</span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+            <div class="log-row">
+                <span class="log-time">2026-07-21 09:00</span>
+                <span class="log-type log-type-in">● 出勤</span>
+                <span></span>
+                <a href="#" class="log-edit">編集</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
