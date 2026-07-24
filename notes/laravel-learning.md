@@ -155,16 +155,3 @@ git push                      GitHub に送る(バックアップ・共有)
      ▼
 【本番サーバー(さくら VPS)】
 ```
-
-### 本番サーバー側の作業(SSH でサーバー入って)
-```
-git pull                    最新コード取得
-composer install            依存関係を更新(package追加時)
-php artisan migrate         DB スキーマ反映(migration追加時)
-php artisan config:cache    設定キャッシュ更新
-```
-
-### つまり大事なこと
-- **GitHub に push しただけでは本番に反映されない**
-- 別途「本番サーバー側で更新作業」が必要
-- 慣れると自動化(CI/CD)できる → 「push したら自動で本番も更新」
