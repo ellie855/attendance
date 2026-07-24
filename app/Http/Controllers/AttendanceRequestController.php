@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\AttendanceCorrectionRequest;
+use App\Models\User;
+use App\Notifications\NewCorrectionRequest;
 
 class AttendanceRequestController extends Controller
 {
@@ -41,16 +43,31 @@ class AttendanceRequestController extends Controller
             'new_time' => 'required|date',
             'reason' => 'required|string|max:1000',
         ]);
-        auth()->user()->correctionRequests()->create([
+        $newRequest = auth()->user()->correctionRequests()->create([
             'target_attendance_id' => $validated['target_attendance_id'],
             'new_time' => $validated['new_time'],
             'reason' => $validated['reason'],
-        ]);    
+        ]);
+
+        //　全管理者に通知
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new NewCorrectionRequest($newRequest));
+        }
+
         return redirect()->route('attendance-requests.index')
             ->with('success', '申請を送信しました');
     }
 
+    public function show(AttendanceCorrectionRequest $attendanceRequest)
+    {
+        //　自分の申請のみ表示可能（念のため）
+        abort_if($attendanceRequest->user_id !== auth()->id(), 403);
 
+        return view('attendance-requests.show', [
+            'attendanceRequest' => $attendanceRequest,
+        ]);
+    }
 
     public function edit(AttendanceCorrectionRequest $attendanceRequest)
     {

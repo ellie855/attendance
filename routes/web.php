@@ -8,6 +8,8 @@ use App\Http\Controllers\DailyNoteController;
 use App\Http\Controllers\AttendanceRequestController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\AttendanceRequestController as AdminAttendanceRequestController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/attendances') : redirect('/login');
@@ -47,11 +49,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/attendances/{attendance}',    [AttendanceController::class, 'destroy'])->name('attendances.destroy');
     Route::post('/daily-notes',                   [DailyNoteController::class, 'store'])->name('daily-notes.store');
     Route::get('/attendance-requests',            [AttendanceRequestController::class, 'index'])->name('attendance-requests.index');
-    Route::get('/attendance-requests/create',      [AttendanceRequestController::class, 'create'])->name('attendance-requests.create');
+    Route::get('/attendance-requests/create',     [AttendanceRequestController::class, 'create'])->name('attendance-requests.create');
     Route::post('/attendance-requests',           [AttendanceRequestController::class, 'store'])->name('attendance-requests.store');
     Route::get('/attendance-requests/{attendanceRequest}/edit',  [AttendanceRequestController::class, 'edit'])->name('attendance-requests.edit');
+    Route::get('/attendance-requests/{attendanceRequest}',       [AttendanceRequestController::class, 'show'])->name('attendance-requests.show');
     Route::put('/attendance-requests/{attendanceRequest}',       [AttendanceRequestController::class, 'update'])->name('attendance-requests.update');
     Route::delete('/attendance-requests/{attendanceRequest}',    [AttendanceRequestController::class, 'destroy'])->name('attendance-requests.destroy');
+    Route::get('/notifications',                                 [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/read',                        [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
 });
 
 

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>勤怠修正申請一覧 デザイン案</title>
+<style>
+    body {
+        font-family: -apple-system, "Hiragino Sans", "BIZ UDPGothic", sans-serif;
+        background: #d4e9d3;
+        margin: 40px;
+        color: #1a1a1a;
+    }
+    h2 { margin-top: 60px; margin-bottom: 20px; color: #2a5d2a; }
+    h2:first-child { margin-top: 0; }
+    .card {
+        background: rgba(255,255,255,0.7);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .card-title { margin: 0 0 20px; font-size: 20px; font-weight: 600; }
+    .badge {
+        padding: 3px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        display: inline-block;
+    }
+    .badge-approved { background: #d1fae5; color: #047857; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+
+    /* ============ 案 A: テーブル形式 ============ */
+    .plan-a table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .plan-a thead {
+        background: #f8f8f8;
+        border-bottom: 2px solid #ddd;
+    }
+    .plan-a th, .plan-a td {
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 13px;
+        border-bottom: 1px solid #eee;
+    }
+    .plan-a th { font-weight: 600; color: #555; font-size: 12px; }
+    .plan-a .row-detail {
+        background: #fafafa;
+        color: #666;
+        font-size: 12px;
+    }
+    .plan-a .row-detail td { padding: 8px 12px; }
+
+    /* ============ 案 B: 改良カード ============ */
+    .plan-b .req-card {
+        background: white;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        border-left: 4px solid #f59e0b;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .plan-b .req-card.approved { border-left-color: #10b981; }
+    .plan-b .req-card.rejected { border-left-color: #ef4444; }
+    .plan-b .req-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .plan-b .req-header .title {
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .plan-b .req-body {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        gap: 8px 16px;
+        font-size: 13px;
+    }
+    .plan-b .req-body .label { color: #888; font-size: 12px; }
+    .plan-b .req-body .value { font-family: monospace; }
+    .plan-b .req-body .reason { color: #333; }
+    .plan-b .req-footer {
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        color: #888;
+    }
+    .plan-b .actions { display: flex; gap: 6px; }
+    .plan-b .btn-edit {
+        padding: 4px 10px;
+        background: #06c;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 11px;
+    }
+    .plan-b .btn-cancel {
+        padding: 4px 10px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    /* ============ 案 C: リスト+ドロワー ============ */
+    .plan-c .list-item {
+        display: grid;
+        grid-template-columns: 80px 100px 200px 1fr auto;
+        gap: 16px;
+        align-items: center;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid #eee;
+    }
+    .plan-c .list-item:hover {
+        background: #f8fafc;
+        border-color: #06c;
+        transform: translateX(2px);
+    }
+    .plan-c .item-status { font-size: 12px; }
+    .plan-c .item-type { font-size: 13px; font-weight: bold; }
+    .plan-c .item-time { font-family: monospace; font-size: 13px; color: #555; }
+    .plan-c .item-reason {
+        font-size: 12px;
+        color: #666;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .plan-c .item-chevron { color: #aaa; font-size: 18px; }
+
+    /* ドロワー説明 */
+    .drawer-note {
+        margin-top: 12px;
+        padding: 12px;
+        background: #fef3c7;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #92400e;
+    }
+</style>
+</head>
+<body>
+
+<!-- ============ 案 A ============ -->
+<h2>案A: テーブル形式(業務ツールっぽい)</h2>
+<div class="card plan-a">
+    <h3 class="card-title">勤怠修正申請</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>状態</th>
+                <th>種類</th>
+                <th>元の打刻</th>
+                <th>修正希望</th>
+                <th>申請日時</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="badge badge-approved">承認済</span></td>
+                <td>休憩終了</td>
+                <td>2026-07-21 18:27</td>
+                <td>2026-07-21 18:27</td>
+                <td>07-21 18:28</td>
+                <td>-</td>
+            </tr>
+            <tr class="row-detail"><td colspan="6">└ 理由: 休憩し忘れ</td></tr>
+            <tr>
+                <td><span class="badge badge-rejected">却下</span></td>
+                <td>出勤</td>
+                <td>2026-07-17 09:05</td>
+                <td>2026-07-16 14:28</td>
+                <td>07-16 21:37</td>
+                <td>-</td>
+            </tr>
+            <tr class="row-detail"><td colspan="6">└ 理由: ssssssss...</td></tr>
+            <tr>
+                <td><span class="badge badge-pending">承認待ち</span></td>
+                <td>出勤</td>
+                <td>2026-07-17 09:05</td>
+                <td>2026-07-15 08:46</td>
+                <td>07-16 19:25</td>
+                <td>
+                    <a class="badge" style="background:#06c;color:white;">修正</a>
+                    <a class="badge" style="background:#e74c3c;color:white;">取り下げ</a>
+                </td>
+            </tr>
+            <tr class="row-detail"><td colspan="6">└ 理由: 打刻忘れのため、実際の出勤打刻に戻したい</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ============ 案 B ============ -->
+<h2>案B: 改良カード(左端カラーライン + 縦並び)</h2>
+<div class="card plan-b">
+    <h3 class="card-title">勤怠修正申請</h3>
+
+    <div class="req-card approved">
+        <div class="req-header">
+            <span class="badge badge-approved">承認済</span>
+            <span class="title">休憩終了 の打刻を修正</span>
+        </div>
+        <div class="req-body">
+            <div class="label">元の時刻</div><div class="value">2026-07-21 18:27</div>
+            <div class="label">修正希望</div><div class="value">2026-07-21 18:27</div>
+            <div class="label">理由</div><div class="reason">休憩し忘れ</div>
+        </div>
+        <div class="req-footer">
+            <span>申請: 2026-07-21 18:28</span>
+        </div>
+    </div>
+
+    <div class="req-card rejected">
+        <div class="req-header">
+            <span class="badge badge-rejected">却下</span>
+            <span class="title">出勤 の打刻を修正</span>
+        </div>
+        <div class="req-body">
+            <div class="label">元の時刻</div><div class="value">2026-07-17 09:05</div>
+            <div class="label">修正希望</div><div class="value">2026-07-16 14:28</div>
+            <div class="label">理由</div><div class="reason">sssssssssssss</div>
+        </div>
+        <div class="req-footer">
+            <span>申請: 2026-07-16 21:37</span>
+        </div>
+    </div>
+
+    <div class="req-card">
+        <div class="req-header">
+            <span class="badge badge-pending">承認待ち</span>
+            <span class="title">出勤 の打刻を修正</span>
+        </div>
+        <div class="req-body">
+            <div class="label">元の時刻</div><div class="value">2026-07-17 09:05</div>
+            <div class="label">修正希望</div><div class="value">2026-07-15 08:46</div>
+            <div class="label">理由</div><div class="reason">打刻忘れのため、実際の出勤打刻に戻したい</div>
+        </div>
+        <div class="req-footer">
+            <span>申請: 2026-07-16 19:25</span>
+            <div class="actions">
+                <a href="#" class="btn-edit">修正</a>
+                <button class="btn-cancel">取り下げ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ 案 C ============ -->
+<h2>案C: リスト+ドロワー(現代的なSaaS)</h2>
+<div class="card plan-c">
+    <h3 class="card-title">勤怠修正申請</h3>
+
+    <div class="list-item">
+        <span class="item-status badge badge-approved">承認済</span>
+        <span class="item-type">休憩終了</span>
+        <span class="item-time">07-21 18:27 → 18:27</span>
+        <span class="item-reason">理由: 休憩し忘れ</span>
+        <span class="item-chevron">›</span>
+    </div>
+    <div class="list-item">
+        <span class="item-status badge badge-rejected">却下</span>
+        <span class="item-type">出勤</span>
+        <span class="item-time">07-17 09:05 → 07-16 14:28</span>
+        <span class="item-reason">理由: sssssssssssss</span>
+        <span class="item-chevron">›</span>
+    </div>
+    <div class="list-item">
+        <span class="item-status badge badge-pending">承認待ち</span>
+        <span class="item-type">出勤</span>
+        <span class="item-time">07-17 09:05 → 07-15 08:46</span>
+        <span class="item-reason">理由: 打刻忘れのため、実際の出勤打刻に戻したい</span>
+        <span class="item-chevron">›</span>
+    </div>
+    <div class="list-item">
+        <span class="item-status badge badge-approved">承認済</span>
+        <span class="item-type">出勤</span>
+        <span class="item-time">07-17 09:05 → 07-17 09:05</span>
+        <span class="item-reason">理由: 打刻を忘れていたため、実際の出勤打刻に戻したい</span>
+        <span class="item-chevron">›</span>
+    </div>
+
+    <div class="drawer-note">
+        ※ この案では、各行をクリックすると右側から詳細ドロワーが開きます(実装コスト高め)
+    </div>
+</div>
+
+</body>
+</html>

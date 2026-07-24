@@ -33,15 +33,17 @@
                     <a href="{{ route('attendances.confirm-in') }}" class="btn-link btn-in">出勤</a>
                 @elseif ($status === '勤務中')    
                     <a href="{{ route('attendances.confirm-out') }}" class="btn-link btn-out">退勤</a>
-                    <form action="{{ route('attendances.break-start') }}" method="POST" style="display:inline;">
+                    <form action="{{ route('attendances.break-start') }}" method="POST" 
+                          onsubmit="return confirm('休憩に入りますか？');" style="display:inline;">
                         @csrf
                         <button type="submit" class="btn-link btn-out">休憩に入る</button>
                     </form>
                 @elseif ($status === '休憩中')
-                    <form action="{{ route('attendances.break-end') }}" method="POST" style="display:inline;">
-                    @csrf 
-                    <button type="submit" class="btn-link btn-in">休憩を終える</button>
-                </form>
+                    <form action="{{ route('attendances.break-end') }}" method="POST" 
+                          onsubmit="return confirm('休憩を終えますか？');" style="display:inline;">
+                        @csrf 
+                        <button type="submit" class="btn-link btn-in">休憩を終える</button>
+                    </form>
             @else
                 <p>お疲れさまでした</p>
                 <a href="{{ route('attendances.confirm-in') }}" class="btn-link btn-in">再出勤</a>

@@ -266,7 +266,7 @@
                 <i class="bi bi-pencil-square sidebar-icon"></i>
                 <span class="sidebar-label">勤怠修正</span>
             </a>
-            <span class="sidebar-link" style="opacity: 0.4; cursor: not-allowed;">
+            <a href="{{ route('reports.monthly') }}" class="sidebar-link">
                 <i class="bi bi-bar-chart-line-fill sidebar-icon"></i>
                 <span class="sidebar-label">月次レポート</span>
             </span>
@@ -274,6 +274,21 @@
                 <i class="bi bi-megaphone-fill sidebar-icon"></i>
                 <span class="sidebar-label">掲示板</span>
             </a>
+
+            @auth
+                <a href="{{ route('notifications.index') }}" class="sidebar-link" style="position:relative;">
+                    <i class="bi bi-bell-fill sidebar-icon"></i>
+                    <span class="sidebar-label">通知</span>
+                    @php $unread = auth()->user()->unreadNotifications()->count(); @endphp
+                    @if ($unread > 0)
+                        <span style="position: absolute; top: 8px; right: 12px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; min-width: 18px; text-align: center;">
+                            {{ $unread > 99 ? '99+' : $unread }}
+                        </span>
+                    @endif
+                </a>
+            @endauth
+
+
             @auth
                 @if (auth()->user()->isAdmin())
                     <a href="{{ route('admin.users.index') }}" class="sidebar-link">
@@ -296,13 +311,36 @@
 
         <div class="sidebar-footer">
             @auth
-                <div class="sidebar-user">
-                    <div class="sidebar-avatar">{{ mb_substr(auth()->user()->name, 0, 1) }}</div>
-                    <div class="sidebar-info">
-                        <div class="sidebar-username">{{ auth()->user()->name }}</div>
-                        <form action="{{ route('logout') }}" method="POST" style="display:inline">
+                <div class="user-menu-wrap" style="position: relative;">
+                    <button type="button" onclick="toggleUserMenu(event)"
+                            class="sidebar-user"
+                            style="cursor: pointer; background: none; border: none; padding: 0; width: 100%; text-align: left; display: flex; align-items: center; gap: 10px;">
+                        <div class="sidebar-avatar">{{ mb_substr(auth()->user()->name, 0, 1) }}</div>
+                        <div class="sidebar-info" style="flex: 1;">
+                            <div class="sidebar-username">{{ auth()->user()->name }}</div>
+                            <div style="color: #9ca3af; font-size: 10px;">クリックでメニュー ▲</div>
+                        </div>
+                    </button>
+
+                    <div id="user-menu" style="display: none; position: absolute; bottom: calc(100% + 8px); left: 0; right: 0; background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: 6px; box-shadow: 0 -4px 20px rgba(0,0,0,0.4); z-index: 100;">
+                        <a href="{{ route('profile.edit') }}"
+                           style="display: block; padding: 10px 14px; color: #e5e7eb; text-decoration: none; border-radius: 4px; font-size: 13px;"
+                           onmouseover="this.style.background='#374151'" onmouseout="this.style.background='transparent'">
+                            <i class="bi bi-person-fill" style="margin-right: 8px;"></i>プロフィール
+                        </a>
+                        <a href="#"
+                           style="display: block; padding: 10px 14px; color: #6b7280; text-decoration: none; border-radius: 4px; font-size: 13px; cursor: not-allowed;"
+                           onclick="event.preventDefault();">
+                            <i class="bi bi-gear-fill" style="margin-right: 8px;"></i>設定 <span style="font-size: 10px; margin-left: 4px;">(準備中)</span>
+                        </a>
+                        <div style="height: 1px; background: #374151; margin: 4px 0;"></div>
+                        <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                             @csrf
-                            <button type="submit" class="sidebar-logout">ログアウト</button>
+                            <button type="submit"
+                                    style="display: block; width: 100%; text-align: left; padding: 10px 14px; color: #ef4444; background: none; border: none; border-radius: 4px; font-size: 13px; cursor: pointer;"
+                                    onmouseover="this.style.background='#374151'" onmouseout="this.style.background='transparent'">
+                                <i class="bi bi-box-arrow-right" style="margin-right: 8px;"></i>ログアウト
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -353,6 +391,19 @@
             if (e.ctrlKey && e.key.toLowerCase() === 'b') {
                 e.preventDefault();
                 toggleSidebar();
+            }
+        });
+
+        // ユーザーメニュー開閉
+        function toggleUserMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('user-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('user-menu');
+            if (menu && !e.target.closest('.user-menu-wrap')) {
+                menu.style.display = 'none';
             }
         });
     </script>
