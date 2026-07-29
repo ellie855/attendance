@@ -88,11 +88,40 @@ class AttendanceController extends Controller
             $checkDate = $checkDate->subDay();
         }
 
+        // 今週の総勤務時間（月～日）
+        $weekStart = now()->startOfWeek();
+        $weekEnd = now()->endOfWeek();
+
+        $weekRecords = $user->attendances()
+            ->whereBetween('created_at', [$weekStart, $weekEnd])
+            ->orderBy('created_at')
+            ->get();
+
+        $weekTotalSec = 0;
+        $weekClockInTime = null;
+        foreach ($weekRecords as $r) {
+            if ($r->type === AttendanceType::ClockIn) {
+                $weekClockInTime = $r->created_at;
+            } elseif ($r->type === AttendanceType::ClockOut && $weekClockInTime) {
+                $weekTotalSec += $weekClockInTime->diffInSeconds($r->created_at);
+                $weekClockInTime = null;
+            }
+        }
+
+        $weekHours = floor($weekTotalSec / 3600);
+        $weekMinutes = floor(($weekTotalSec % 3600) / 60);
+
+
+
+
+
         $summary = [
-            'total_hours' => $monthHours,
-            'days'        => $monthDays,
-            'avg_hours'   => $avgHours,
-            'streak'      => $streak, 
+            'total_hours'  => $monthHours,
+            'days'         => $monthDays,
+            'avg_hours'    => $avgHours,
+            'streak'       => $streak, 
+            'week_hours'   => $weekHours,
+            'week_minutes' => $weekMinutes,
         ];
 
         return view('attendances.index', [

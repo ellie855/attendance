@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '承認待ち申請')
+@section('title', '休暇承認')
 
 @section('content')
 <div class="card">

@@ -187,12 +187,16 @@
         .dashboard-left > .card:nth-child(2) textarea { min-height: 60px; height: 60px; font-size: 13px; }
 
         /* サマリー: 色付き4カード */
-        .summary-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .summary-grid { grid-template-columns: repeat(5, 1fr); gap: 12px; }
         .summary-card { padding: 16px; border-left: 4px solid #10b981; transition: all 0.2s; }
         .summary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .summary-grid .summary-card:nth-child(2) { border-left-color: #06c; }
         .summary-grid .summary-card:nth-child(3) { border-left-color: #f59e0b; }
         .summary-grid .summary-card:nth-child(4) { border-left-color: #ef4444; }
+        .summary-grid .summary-card:nth-child(5) { border-left-color: #8b5cf6; }
+        .summary-grid .summary-card:nth-child(5) .value { font-size: 20px; white-space: nowrap; }
+        .summary-grid .summary-card:nth-child(5) .unit { font-size: 11px; }
+
         .summary-card .label { font-size: 11px; margin-bottom: 6px; letter-spacing: 0.5px; }
         .summary-card .value { font-size: 28px; letter-spacing: -1px; line-height: 1; }
         .summary-card .icon { font-size: 14px; margin-bottom: 2px; }
@@ -266,6 +270,10 @@
                 <i class="bi bi-pencil-square sidebar-icon"></i>
                 <span class="sidebar-label">勤怠修正</span>
             </a>
+            <a href="{{ route('leave-requests.index') }}" class="sidebar-link">
+                <i class="bi bi-calendar-event sidebar-icon"></i>
+                <span class="sidebar-label">休暇申請</span>
+            </a>
             <a href="{{ route('reports.monthly') }}" class="sidebar-link">
                 <i class="bi bi-bar-chart-line-fill sidebar-icon"></i>
                 <span class="sidebar-label">月次レポート</span>
@@ -303,6 +311,15 @@
                     <a href="{{ route('admin.attendance-requests.index') }}" class="sidebar-link">
                         <i class="bi bi-check2-square sidebar-icon"></i>
                         <span class="sidebar-label">承認待ち</span>
+                    </a>
+                @endif
+            @endauth
+
+            @auth
+                @if (auth()->user()->isAdmin())
+                    <a href="{{ route('admin.leave-requests.index') }}" class="sidebar-link">
+                        <i class="bi bi-calendar-check sidebar-icon"></i>
+                        <span class="sidebar-label">休暇承認</span>
                     </a>
                 @endif
             @endauth

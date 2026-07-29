@@ -10,6 +10,9 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\AttendanceRequestController as AdminAttendanceRequestController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\LeaveRequestController;
+use App\Http\Controllers\Admin\LeaveRequestController as AdminLeaveRequestController;
+
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/attendances') : redirect('/login');
@@ -56,8 +59,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/attendance-requests/{attendanceRequest}',       [AttendanceRequestController::class, 'update'])->name('attendance-requests.update');
     Route::delete('/attendance-requests/{attendanceRequest}',    [AttendanceRequestController::class, 'destroy'])->name('attendance-requests.destroy');
     Route::get('/notifications',                                 [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/{id}/read',                        [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::get('/reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
+    Route::get('/notifications/{id}/read',                       [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/reports/monthly',                               [ReportController::class, 'monthly'])->name('reports.monthly');
+    Route::get('/leave-requests',                                [LeaveRequestController::class, 'index'])->name('leave-requests.index');
+    Route::get('/leave-requests/create',                         [LeaveRequestController::class, 'create'])->name('leave-requests.create');
+    Route::post('/leave-requests',                               [LeaveRequestController::class, 'store'])->name('leave-requests.store');
+    Route::get('/leave-requests/{leaveRequest}',                 [LeaveRequestController::class, 'show'])->name('leave-requests.show');
+    Route::get('/leave-requests/{leaveRequest}/edit',            [LeaveRequestController::class, 'edit'])->name('leave-requests.edit');
+    Route::put('/leave-requests/{leaveRequest}',                 [LeaveRequestController::class, 'update'])->name('leave-requests.update');
+    Route::delete('/leave-requests/{leaveRequest}',              [LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
 });
 
 
@@ -69,6 +79,9 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->pref
     Route::get('/attendance-requests',                               [AdminAttendanceRequestController::class, 'index'])->name('attendance-requests.index');
     Route::put('/attendance-requests/{attendanceRequest}/approve',   [AdminAttendanceRequestController::class, 'approve'])->name('attendance-requests.approve');
     Route::put('/attendance-requests/{attendanceRequest}/reject',    [AdminAttendanceRequestController::class, 'reject'])->name('attendance-requests.reject');
+    Route::get('/leave-requests',                                    [AdminLeaveRequestController::class, 'index'])->name('leave-requests.index');
+    Route::put('/leave-requests/{leaveRequest}/approve',             [AdminLeaveRequestController::class, 'approve'])->name('leave-requests.approve');
+    Route::put('/leave-requests/{leaveRequest}/reject',               [AdminLeaveRequestController::class, 'reject'])->name('leave-requests.reject');
 });
 
 

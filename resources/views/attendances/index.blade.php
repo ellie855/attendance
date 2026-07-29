@@ -90,6 +90,11 @@
                 <div class="label">連続出勤</div>
                 <div class="value">{{ $summary['streak'] ?? 0 }}<span class="unit">日</span></div>
             </div>
+            <div class="summary-card">
+                <div class="icon"><i class="bi bi-calendar-week"></i></div>
+                <div class="label">今週の勤務時間</div>
+                <div class="value">{{ $summary['week_hours'] ?? 0 }}<span class="unit">時間</span>{{ $summary['week_minutes'] ?? 0 }}<span class="unit">分</span></div>
+            </div>
         </div>
     </div>
 

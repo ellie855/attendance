@@ -49,6 +49,11 @@ class User extends Authenticatable
         return $this->hasMany(AttendanceCorrectionRequest::class);
     }
 
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
     /**
      * 管理者かどうか
      */
