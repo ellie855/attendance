@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AttendanceCorrectionRequest;
+use App\Models\Attendance;
 use App\Notifications\RequestProcessed;
 
 class AttendanceRequestController extends Controller
@@ -30,11 +31,20 @@ class AttendanceRequestController extends Controller
                 ->with('error', 'この申請は既に処理済みです');
         }
 
-        //　申請された時刻に上書き
-        $attendanceRequest->targetAttendance->update([
-            'created_at' => $attendanceRequest->new_time,
-        ]);
-
+        if ($attendanceRequest->type?->value === 'add') {
+            // add: 新規 Attendance レコードを作成
+            Attendance::create([
+                'user_id'      => $attendanceRequest->user_id,
+                'type'         => $attendanceRequest->clock_type,
+                'created_at'   => $attendanceRequest->new_time,
+            ]);
+        } else {
+            // modify: 既存 Attendance の時刻を上書き
+            $attendanceRequest->targetAttendance->update([
+                'created_at' => $attendanceRequest->new_time,
+            ]);
+        }
+        
         $attendanceRequest->update([
             'status' => 'approved',
             'approved_by' => auth()->id(),

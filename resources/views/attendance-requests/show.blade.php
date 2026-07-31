@@ -20,11 +20,37 @@
     </div>
 
     <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px 20px; font-size: 14px; margin-bottom: 24px;">
-        <div style="color: #888;">種類</div><div>{{ $attendanceRequest->targetAttendance->type->label() }}</div>
-        <div style="color: #888;">元の時刻</div><div style="font-family: monospace;">{{ $attendanceRequest->targetAttendance->created_at->format('Y-m-d H:i') }}</div>
-        <div style="color: #888;">修正希望</div><div style="font-family: monospace; font-weight: bold;">{{ $attendanceRequest->new_time->format('Y-m-d H:i') }}</div>
+        <div style="color: #888;">申請種別</div>
+        <div>
+            @if ($attendanceRequest->type?->value === 'add')
+                <span style="background:#dbeafe; color:#1e40af; padding:2px 8px; border-radius:4px; font-size:12px;">追加</span>
+                打刻追加
+            @else
+                <span style="background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:4px; font-size:12px;">修正</span>    
+                既存打刻の修正
+            @endif
+        </div>
+
+        <div style="color: #888;">打刻種類</div>
+        <div>
+            @if ($attendanceRequest->type?->value === 'add')
+                {{ $attendanceRequest->clock_type?->label() }}
+            @else
+                {{ $attendanceRequest->targetAttendance?->type?->label() ?? '(打刻不明)' }}
+            @endif
+        </div>
+
+        @if ($attendanceRequest->type?->value !== 'add')
+            <div style="color: #888;">元の時刻</div>
+            <div style="font-family: monospace;">{{ $attendanceRequest->targetAttendance?->created_at->format('Y-m-d H:i') ?? '?' }}</div>
+        @endif
+
+        <div style="color: #888;">{{ $attendanceRequest->type?->value === 'add' ? '追加する時刻' : '修正希望' }}</div>
+        <div style="font-family: monospace; font-weight: bold;">{{$attendanceRequest->new_time->format('Y-m-d H:i') }}</div>
+
         <div style="color: #888;">理由</div><div>{{ $attendanceRequest->reason }}</div>
         <div style="color: #888;">申請日時</div><div style="font-family: monospace; color: #666;">{{ $attendanceRequest->created_at->format('Y-m-d H:i') }}</div>
+        
         @if ($attendanceRequest->admin_comment)
             <div style="color: #888;">管理者コメント</div><div style="color: #991b1b;">{{ $attendanceRequest->admin_comment }}</div>
         @endif

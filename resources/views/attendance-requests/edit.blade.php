@@ -14,6 +14,20 @@
         @csrf
         @method('PUT')
 
+    {{-- 申請種別(固定表示) --}}
+    <label style="display: block; margin-bottom: 6px; font-weight: bold;">申請種別</label>
+    <div style="margin-bottom: 16px;">
+        @if ($attendanceRequest->type?->value === 'add')
+            <span style="background:#dbeafe; color:#1e40af; padding:4px 12px; border-radius:6px; font-size:13px;">打刻追加</span>
+            <small style="color:#666; margin-left:8px;">※種類は変更不可</small>
+        @else
+            <span style="background:#fef3c7; color:#92400e; padding:4px 12px; border-radius:6px; font-size:13px;">既存修正</span>
+            <small style="color:#666; margin-left:8px;">※種類は変更不可</small>
+        @endif
+    </div>
+
+    @if ($attendanceRequest->type?->value === 'modify')
+        {{-- modify 用: 既存打刻を選ぶ --}}
         <label for="target_attendance_id" style="display: block; margin-bottom: 6px; font-weight: bold;">
             修正したい打刻を選択
         </label>
@@ -30,6 +44,23 @@
         @error('target_attendance_id')
             <div style="color: #c00; font-size: 13px; margin-bottom: 12px;">{{ $message }}</div>
         @enderror
+    @else
+        {{-- add 用: 打刻種類を選ぶ --}}
+        <label for="clock_type" style="display: block; margin-bottom: 6px; font-weight: bold;">
+            追加する打刻の種類
+        </label>
+        <select id="clock_type" name="clock_type" style="width: 100%; padding: 8px; margin-bottom: 4px;">
+            @foreach ($clockTypes as $ct)
+                <option value="{{ $ct->value }}"
+                    @selected(old('clock_type', $attendanceRequest->clock_type?->value) === $ct->value)>
+                    {{ $ct->label() }}
+                </option>
+            @endforeach
+        </select>
+        @error('clock_type')
+            <div style="color: #c00; font-size: 13px; margin-bottom: 12px;">{{ $message }}</div>
+        @enderror
+    @endif
 
         <label for="new_time" style="display: block; margin-top: 16px; margin-bottom: 6px; font-weight: bold;">
             希望の時刻

@@ -46,7 +46,7 @@
                     </form>
             @else
                 <p>お疲れさまでした</p>
-                <a href="{{ route('attendances.confirm-in') }}" class="btn-link btn-in">再出勤</a>
+                <a href="{{ route('attendances.confirm-in') }}" class="btn-link btn-in">出勤</a>
             @endif
             </div>
         </div>
@@ -114,9 +114,20 @@
                     @if (isset($durations[$attendance->id]))
                         <span class="log-duration">{{ $durations[$attendance->id] }}</span>
                     @endif
-                    @if (in_array($attendance->id, $ongoingClockIns))
-                        <span class="log-elapsed" data-since="{{ $attendance->created_at->getTimestamp() }}000">--:--:--</span>
+                    @if (isset($ongoingClockIns[$attendance->id]))
+                        @php $info = $ongoingClockIns[$attendance->id]; @endphp
+                        <span class="log-elapsed"
+                              data-clock-in="{{ $info['clock_in_ts'] }}"
+                              data-break-sec="{{ $info['break_sec'] }}"
+                              data-on-break="{{ $info['is_on_break'] ? '1' : '0' }}"
+                              data-break-start="{{ $info['break_start_ts'] ?? ''}}">
+                            --:--:--
+                        </span>
+                        @if ($info['is_on_break'])
+                            <span class="log-break-badge" style="background: #f59e0b; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">休憩中</span>
+                        @endif
                     @endif
+
                     @can('update', $attendance)
                         <a href="{{ route('attendances.edit', $attendance) }}" class="log-edit">編集</a>
                     @endcan
@@ -143,8 +154,22 @@
 
     function updateElapsed() {
         document.querySelectorAll('.log-elapsed').forEach(el => {
-            const sinceMs = parseInt(el.dataset.since);
-            const elapsed = Math.floor((Date.now() - sinceMs) / 1000);
+            const clockIn = parseInt(el.dataset.clockIn);
+            const breakSec = parseInt(el.dataset.breakSec);
+            const onBreak = el.dataset.onBreak === '1';
+            const breakStart  = el.dataset.breakStart ? parseInt(el.dataset.breakStart) : null;
+
+
+            const now = Math.floor(Date.now() / 1000);
+            let elapsed;
+            if (onBreak && breakStart) {
+                //　休憩中は休憩開始時点で表示を固定
+                elapsed = (breakStart - clockIn) - breakSec;
+            } else {
+                // 通常勤務中は現在時刻ベースで加算
+                elapsed = (now - clockIn) - breakSec;
+            }
+
             const h = Math.floor(elapsed / 3600);
             const m = Math.floor((elapsed % 3600) / 60);
             el.textContent = h + '時間' + m + '分';

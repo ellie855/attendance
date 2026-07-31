@@ -128,6 +128,37 @@ docker start php-study-db      DB起動
 
 ---
 
+## PC 再起動後の復帰(全部落ちた時の手順)
+
+### ① Docker(DB + phpMyAdmin)
+```
+docker start php-study-db php-study-pma
+```
+※ Docker Desktop が起動してること前提(タスクトレイに🐳)
+
+### ② Laravel 開発サーバー(勤怠アプリ)
+プロジェクトフォルダで:
+```
+php artisan serve
+```
+→ http://127.0.0.1:8000
+
+### ③ Claude Code
+```
+claude --continue                                  直前の続きから
+claude -c                                          同上(短縮形)
+claude --resume                                    過去セッション一覧から選ぶ
+claude --dangerously-skip-permissions --continue   許可プロンプトスキップ版
+```
+
+### アクセス先
+| 何 | URL |
+|---|---|
+| 勤怠アプリ | http://127.0.0.1:8000 |
+| phpMyAdmin | http://localhost:8081 |
+
+---
+
 ## Git の基本 3コマンド
 
 作業のたびにこの3つを順番に:

@@ -13,21 +13,58 @@
     <form action="{{ route('attendance-requests.store') }}" method="POST" style="margin-top: 20px;">
         @csrf
 
-        <label for="target_attendance_id" style="display: block; margin-bottom: 6px; font-weight: bold;">
-            修正したい打刻を選択
+        {{-- 申請種別を選ぶラジオボタン --}}
+<label style="display: block; margin-bottom: 6px; font-weight: bold;">申請種別</label>
+<div style="display: flex; gap: 20px; margin-bottom: 16px;">
+    @foreach ($requestTypes as $rt)
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="radio" name="type" value="{{ $rt->value }}"
+                   {{ old('type', 'modify') === $rt->value ? 'checked' : '' }}
+                   onchange="toggleTypeFields()">
+            {{ $rt->label() }}
         </label>
-        <select id="target_attendance_id" name="target_attendance_id" style="width: 100%; padding: 8px; margin-bottom: 4px;">
-            @forelse ($attendances as $attendance)
-                <option value="{{ $attendance->id }}">
-                    {{ $attendance->created_at->format('Y-m-d H:i') }} - {{ $attendance->type->label() }}
-                </option>
-            @empty
-                <option value="" disabled>過去14日間の打刻がありません</option>
-            @endforelse
-        </select>
-        @error('target_attendance_id')
-            <div style="color: #c00; font-size: 13px; margin-bottom: 12px;">{{ $message }}</div>
-        @enderror
+    @endforeach
+</div>
+@error('type')
+    <div style="color: #c00; font-size: 13px; margin-bottom: 12px;">{{ $message }}</div>
+@enderror
+
+{{-- ▼ modify 用: 既存打刻を選ぶ --}}
+<div id="modifyFields">
+    <label for="target_attendance_id" style="display: block; margin-bottom: 6px; font-weight: bold;">
+        修正したい打刻を選択
+    </label>
+    <select id="target_attendance_id" name="target_attendance_id" style="width: 100%; padding: 8px; margin-bottom: 4px;">
+        @forelse ($attendances as $attendance)
+            <option value="{{ $attendance->id }}">
+                {{ $attendance->created_at->format('Y-m-d H:i') }} - {{ $attendance->type->label() }}
+            </option>
+        @empty
+            <option value="" disabled>過去14日間の打刻がありません</option>
+        @endforelse
+    </select>
+    @error('target_attendance_id')
+        <div style="color: #c00; font-size: 13px; margin-bottom: 12px;">{{ $message }}</div>
+    @enderror
+</div>
+
+{{-- ▼ add 用: 打刻種類を選ぶ --}}
+<div id="addFields" style="display: none;">
+    <label for="clock_type" style="display: block; margin-bottom: 6px; font-weight: bold;">
+        追加する打刻の種類
+    </label>
+    <select id="clock_type" name="clock_type" style="width: 100%; padding: 8px; margin-bottom: 4px;">
+        @foreach ($clockTypes as $ct)
+            <option value="{{ $ct->value }}" {{ old('clock_type') === $ct->value ? 'selected' : '' }}>
+                {{ $ct->label() }}
+            </option>
+        @endforeach
+    </select>
+    @error('clock_type')
+        <div style="color: #c00; font-size: 13px; margin-bottom: 12px;">{{ $message }}</div>
+    @enderror
+</div>
+
 
         <label for="new_time" style="display: block; margin-top: 16px; margin-bottom: 6px; font-weight: bold;">
             希望の時刻
@@ -54,4 +91,13 @@
         </div>
     </form>
 </div>
+<script>
+    function toggleTypeFields() {
+        const selected = document.querySelector('input[name="type"]:checked').value;
+        document.getElementById('modifyFields').style.display = selected === 'modify' ? 'block' : 'none';
+        document.getElementById('addFields').style.display = selected === 'add' ? 'block' : 'none';
+    }
+    // ページ読み込み時にも実行(old値対応)
+    toggleTypeFields();
+</script>
 @endsection

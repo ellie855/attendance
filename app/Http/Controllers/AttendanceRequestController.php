@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceCorrectionRequest;
 use App\Models\User;
 use App\Notifications\NewCorrectionRequest;
+use App\Enums\CorrectionRequestType;
+use App\Enums\AttendanceType;
 
 class AttendanceRequestController extends Controller
 {
@@ -32,22 +34,48 @@ class AttendanceRequestController extends Controller
         ->get();
 
         return view('attendance-requests.create', [
-            'attendances' => $attendances,
+            'attendances'  => $attendances,
+            'requestTypes' => CorrectionRequestType::cases(),
+            'clockTypes'   => AttendanceType::cases(),
         ]);
     }
 
     public function store(Request $request)
     {
+        // 共通バリデーション
         $validated = $request->validate([
-            'target_attendance_id' => 'required|exists:attendances,id',
+            'type'     => 'required|in:modify,add',
             'new_time' => 'required|date',
-            'reason' => 'required|string|max:1000',
+            'reason'   => 'required|string|max:1000',
         ]);
-        $newRequest = auth()->user()->correctionRequests()->create([
-            'target_attendance_id' => $validated['target_attendance_id'],
-            'new_time' => $validated['new_time'],
-            'reason' => $validated['reason'],
-        ]);
+
+        // 種別ごとに追加バリデーション
+        if ($validated['type'] === 'modify') {
+            $extra = $request->validate([
+                'target_attendance_id' => 'required|exists:attendances,id',
+            ]);
+            $data = [
+                'type'                 => 'modify',
+                'target_attendance_id' => $extra['target_attendance_id'],
+                'clock_type'           => null,
+                'new_time'             => $validated['new_time'],
+                'reason'               => $validated['reason'],
+            ];
+        } else {
+            // add タイプ
+            $extra = $request->validate([
+                'clock_type' => 'required|in:clock_in,clock_out,break_start,break_end',
+            ]);
+            $data = [
+                'type'                 => 'add',
+                'target_attendance_id' => null,
+                'clock_type'           => $extra['clock_type'],
+                'new_time'             => $validated['new_time'],
+                'reason'               => $validated['reason'],
+            ];
+        }
+
+        $newRequest = auth()->user()->correctionRequests()->create($data);
 
         //　全管理者に通知
         $admins = User::where('role', 'admin')->get();
@@ -81,7 +109,8 @@ class AttendanceRequestController extends Controller
 
         return view('attendance-requests.edit', [
             'attendanceRequest' => $attendanceRequest,
-            'attendances' => $attendances,
+            'attendances'       => $attendances,
+            'clockTypes'        => AttendanceType::cases(),
         ]);
     }
 
@@ -89,15 +118,35 @@ class AttendanceRequestController extends Controller
     {
         $this->authorize('update', $attendanceRequest);
 
+        // 共通バリデーション
         $validated = $request->validate([
-            'target_attendance_id' => 'required|exists:attendances,id',
             'new_time' => 'required|date',
             'reason' => 'required|string|max:1000',
         ]);
 
-        $attendanceRequest->update($validated);
+        // 種別ごとに追加バリデーション + 更新内容決定
+        if ($attendanceRequest->type?->value === 'add') {
+            $extra = $request->validate([
+                'clock_type' => 'required|in:clock_in,clock_out,break_start,break_end',
+            ]);
+            $data = [
+                'clock_type' => $extra['clock_type'],
+                'new_time'   => $validated['new_time'],
+                'reason'     => $validated['reason'],
+            ];
+        } else {
+            $extra = $request->validate([
+                'target_attendance_id' => 'required|exists:attendances,id',
+            ]);
+            $data = [
+                'target_attendance_id' => $extra['target_attendance_id'],
+                'new_time'             => $validated['new_time'],
+                'reason'               => $validated['reason'],
+            ];
+        }
 
-        return redirect()->route('attendance-requests.index')
+        $attendanceRequest->update($data);
+            return redirect()->route('attendance-requests.index')
            ->with('success', '申請を更新しました');
     }
 

@@ -30,9 +30,20 @@
                         <span style="background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 12px; font-size: 12px;">却下</span>
                     @endif
                 </span>
-                <span style="font-size: 13px; font-weight: bold;">{{ $request->targetAttendance->type->label() }}</span>
+                <span style="font-size: 13px; font-weight: bold;">
+                    @if ($request->type?->value === 'add')
+                        <span style="background:#dbeafe; color:#1e40af; padding:2px 6px; border-radius:4px; font-size:11px;">追加</span>
+                        {{ $request->clock_type?->label() }}
+                    @else
+                        {{ $request->targetAttendance?->type?->label() ?? '(打刻不明)' }}
+                    @endif
+                </span>
                 <span style="font-family: monospace; font-size: 13px; color: #555;">
-                    {{ $request->targetAttendance->created_at->format('m-d H:i') }} → {{ $request->new_time->format('m-d H:i') }}
+                    @if ($request->type?->value === 'add')
+                        → {{ $request->new_time->format('m-d H:i') }}
+                    @else
+                        {{ $request->targetAttendance?->created_at->format('m-d H:i') ?? '?' }} → {{$request->new_time->format('m-d H:i') }}
+                    @endif
                 </span>
                 <span style="font-size: 12px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     理由: {{ $request->reason }}

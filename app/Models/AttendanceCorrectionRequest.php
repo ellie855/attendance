@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\CorrectionRequestType;
+use App\Enums\AttendanceType;
 
 class AttendanceCorrectionRequest extends Model
 {
     protected $fillable = [
         'user_id',
+        'type',
+        'clock_type',
         'target_attendance_id',
         'new_time',
         'reason',
@@ -20,6 +24,8 @@ class AttendanceCorrectionRequest extends Model
     protected $casts = [
         'new_time' => 'datetime',
         'approved_at' => 'datetime',
+        'type' => CorrectionRequestType::class,
+        'clock_type' => AttendanceType::class,
     ];
 
     public function user()
