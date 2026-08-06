@@ -1,5 +1,7 @@
 # StepLog(勤怠管理 SaaS)
 
+[![Tests](https://github.com/ellie855/attendance/actions/workflows/tests.yml/badge.svg)](https://github.com/ellie855/attendance/actions/workflows/tests.yml)
+
 Laravel + PHP で作成した勤怠管理アプリのポートフォリオです。
 打刻・修正申請・休暇申請・月次レポート・CSV 入出力までひと通り実装しています。
 
