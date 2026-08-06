@@ -5,6 +5,14 @@ Laravel + PHP で作成した勤怠管理アプリのポートフォリオです
 
 **🌐 デモ**: http://attendance.163.44.100.230.nip.io/
 
+### デモアカウント
+| 種類 | メール | パスワード |
+|---|---|---|
+| 一般ユーザー | `demo-user@example.com` | `password` |
+| 管理者 | `demo-admin@example.com` | `password` |
+
+※デモ用の共有アカウントです。データは保証されません。
+
 ---
 
 ## 主な機能
