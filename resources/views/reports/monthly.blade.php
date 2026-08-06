@@ -9,10 +9,15 @@
         <h1 class="card-title" style="margin: 0; border: none; padding: 0;">月次レポート</h1>
         <div style="display: flex; align-items: center; gap: 12px;">
             <a href="{{ route('reports.monthly', ['ym' => $prevMonth]) }}"
-               style="padding: 6px 12px; background: #06c; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">◀ 前月</a>
+                style="padding: 6px 12px; background: #06c; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">◀ 前月</a>
             <span style="font-size: 18px; font-weight: bold;">{{ $targetMonth->format('Y年n月') }}</span>
             <a href="{{ route('reports.monthly', ['ym' => $nextMonth]) }}"
-               style="padding: 6px 12px; background: #06c; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">翌月 ▶</a>
+                style="padding: 6px 12px; background: #06c; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">翌月 ▶</a>
+
+                <a href="{{ route('reports.monthly.csv', ['ym' => $targetMonth->format('Y-m')]) }}"
+                    style="padding: 6px 12px; background: #10b981; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; margin-left: 12px">
+                    <i class="bi bi-download"></i> CSV
+                </a>
         </div>
     </div>
 

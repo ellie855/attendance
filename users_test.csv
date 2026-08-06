@@ -1,0 +1,6 @@
+name,email,password,role
+テスト太郎,test1@example.com,password123,user
+テスト花子,test2@example.com,password123,user
+テスト管理,test-admin@example.com,password123,admin
+不正メール,invalid-mail,password123,user
+既存メール,tanaka@example.com,password123,user

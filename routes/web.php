@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications',                                 [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/{id}/read',                       [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::get('/reports/monthly',                               [ReportController::class, 'monthly'])->name('reports.monthly');
+    Route::get('/reports/monthly/csv',                               [ReportController::class, 'monthlyCsv'])->name('reports.monthly.csv');
     Route::get('/leave-requests',                                [LeaveRequestController::class, 'index'])->name('leave-requests.index');
     Route::get('/leave-requests/create',                         [LeaveRequestController::class, 'create'])->name('leave-requests.create');
     Route::post('/leave-requests',                               [LeaveRequestController::class, 'store'])->name('leave-requests.store');
@@ -76,6 +77,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->pref
     Route::get('/users',                                             [AdminUserController::class, 'index'])->name('users.index');
     Route::put('/users/{user}/role',                                 [AdminUserController::class, 'updateRole'])->name('users.update-role');
     Route::delete('/users/{user}',                                   [AdminUserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/import',                                     [AdminUserController::class, 'import'])->name('users.import');
     Route::get('/attendance-requests',                               [AdminAttendanceRequestController::class, 'index'])->name('attendance-requests.index');
     Route::put('/attendance-requests/{attendanceRequest}/approve',   [AdminAttendanceRequestController::class, 'approve'])->name('attendance-requests.approve');
     Route::put('/attendance-requests/{attendanceRequest}/reject',    [AdminAttendanceRequestController::class, 'reject'])->name('attendance-requests.reject');

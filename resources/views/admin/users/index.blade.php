@@ -19,6 +19,37 @@
 <div class="card">
     <h1 class="card-title">ユーザー管理</h1>
 
+{{-- CSVインポートフォーム --}}
+<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin-top: 16px;">
+    <div style="font-weight: bold; margin-bottom: 8px;">
+        <i class="bi bi-upload"></i>CSVでユーザー一括登録
+    </div>
+    <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
+        フォーマット: <code>name,email,password,role</code><br>
+        例: <code>田中太郎,tanaka@example.com,password123,user</code>
+    </div>
+    <form action="{{ route('admin.users.import') }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
+        @csrf
+        <input type="file" name="csv" accept=".csv" required
+              style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+        <button type="submit"
+                style="padding: 6px 16px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer;">
+            インポート
+        </button>
+    </form>
+    @if (session('import_errors'))
+        <div style="margin-top: 10px; color: #991b1b; font-size: 12px">
+            スキップされた行: 
+            <ul style="margin: 4px 0 0 20px;">
+                @foreach (session('import_errors') as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+</div>
+
+
     <table style="width: 100%; margin-top: 16px; border-collapse: collapse;">
         <thead>
             <tr style="border-bottom: 2px solid #ddd;">

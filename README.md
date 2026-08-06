@@ -1,58 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# StepLog(勤怠管理 SaaS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel + PHP で作成した勤怠管理アプリのポートフォリオです。
+打刻・修正申請・休暇申請・月次レポート・CSV 入出力までひと通り実装しています。
 
-## About Laravel
+**🌐 デモ**: http://attendance.163.44.100.230.nip.io/
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 主な機能
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 一般ユーザー
+- 出勤・退勤・休憩開始・休憩終了の打刻(日付跨ぎ勤務対応)
+- 今月の勤務時間サマリー(休憩時間差引済み)
+- 月次レポート表示 + **CSV エクスポート**
+- 打刻修正申請(既存打刻の修正 + 打刻の追加申請)
+- 休暇申請(有休/欠勤/半休/特別休暇)
+- 今日の作業内容メモ
+- 通知一覧(ベルアイコン + 未読バッジ)
 
-## Learning Laravel
+### 管理者
+- ユーザー管理(役割変更、削除)
+- **CSV による ユーザー一括登録**(バルクインサート最適化)
+- 修正申請の承認・却下
+- 休暇申請の承認・却下
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 技術スタック
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| カテゴリ | 使用技術 |
+|---|---|
+| バックエンド | Laravel 13, PHP 8.4 |
+| フロントエンド | Blade, Vite, Bootstrap Icons |
+| DB | MySQL 8(Docker) |
+| テスト | Pest |
+| 本番環境 | さくら VPS + Nginx + PHP-FPM |
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## アピールポイント
+
+### N+1 問題解消 + バルクインサート
+CSV による1000ユーザー登録処理を **280秒 → 1.6秒(約170倍)** に改善。
+- 1行ずつの INSERT/SELECT → 1回の SELECT + バルクINSERT
+- `DB::transaction()` + `array_chunk()`
+
+### 型安全な Enum
+勤怠種別・休暇種別・修正申請種別を Backed Enum で表現。
+- `AttendanceType`, `LeaveType`, `CorrectionRequestType`
+- ラベル取得メソッド付き、Model の `$casts` で自動キャスト
+
+### 休憩時間の差引ロジック
+勤務時間計算に休憩時間を自動反映(日次/週次/月次/経過時間)。
+JS 側も勤務中/休憩中の状態で経過時間を切り替え表示。
+
+### 権限管理
+`Policy` を利用して申請の編集・取り下げは本人のみ許可、
+管理者機能は独自 middleware で保護。
+
+### テスト(Pest)
+Feature テストで主要動線をカバー:
+- 認証、打刻、CSV アップロード、権限境界(403)
+
+---
+
+## セットアップ(ローカル)
 
 ```bash
-composer require laravel/boost --dev
+git clone https://github.com/ellie855/ayutonLAB.git
+cd ayutonLAB
 
-php artisan boost:install
+composer install
+npm install
+
+cp .env.example .env
+php artisan key:generate
+
+# DB(Docker)
+docker start php-study-db
+
+# マイグレーション
+php artisan migrate
+
+# 起動
+php artisan serve   # http://127.0.0.1:8000
+npm run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## テスト実行
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php vendor/bin/pest
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## ディレクトリ構成(主要部分)
 
-## Security Vulnerabilities
+```
+app/
+├── Enums/                 # AttendanceType / LeaveType / CorrectionRequestType
+├── Http/Controllers/
+│   ├── Admin/             # 管理者機能
+│   └── AttendanceController.php など
+├── Models/                # Eloquent モデル
+├── Notifications/         # アプリ内通知
+└── Policies/              # 権限ロジック
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+resources/views/
+├── layouts/app.blade.php  # 共通レイアウト
+└── attendances/ ...       # 各画面
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 学習メモ
+
+実装過程での学びは [`notes/laravel-learning.md`](notes/laravel-learning.md) に随時記録。
