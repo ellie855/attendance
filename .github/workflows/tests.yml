@@ -21,6 +21,17 @@ jobs:
           extensions: sqlite, pdo_sqlite, mbstring
           coverage: none
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install NPM dependencies 
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
       - name: Copy .env
         run: cp .env.example .env
     
