@@ -74,6 +74,7 @@ class UserController extends Controller
         $rowNum = 1; //ヘッダーが一行目なので、データは二行目から
         while (($row = fgetcsv($fp)) !== false) {
             $rowNum++;
+            $row = array_map('trim', $row);
             // 列数チェック(name, email, password, roleの４列)
             if (count($row) < 4) {
                 $errors[] ="行{$rowNum}: 列数が足りません";
@@ -100,19 +101,21 @@ class UserController extends Controller
             $validRows[] = compact('name', 'email', 'password', 'role') + ['num' => $r['num']];
         }
 
-        // 4. 既存メールを一回で全部取得（N+1問題を回避）
-        $emails = array_column($validRows, 'email');
-        $existingEmails = User::whereIn('email', $emails)->pluck('email')->toArray();
+        // 4. 既存メールを一回で全部取得（N+1問題を回避）+ 小文字統一
+        $emails = array_map('strtolower', array_column($validRows, 'email'));
+        $existingEmails = array_map('strtolower', User::whereIn('email', $emails)->pluck('email')->toArray());
 
-        // 5. 重複除外　+　CSV内での重複もチェック
+        // 5. 重複除外　+　CSV内での重複もチェック(大文字小文字を区別せず)
         $newRows = [];
         $seenEmails = [];
         foreach ($validRows as $r) {
-            if (in_array($r['email'], $existingEmails) || in_array($r['email'], $seenEmails)) {
+            $emailLower = strtolower($r['email']);
+            if (in_array($emailLower, $existingEmails) || in_array($emailLower, $seenEmails)) {
                 $errors[] = "行{$r['num']}({$r['email']}): このメールアドレスは既に使用されています";
                 continue;
             }
-            $seenEmails[] = $r['email'];
+            $seenEmails[] = $emailLower;
+            $r['email'] = $emailLower;   // 保存も小文字で統一
             $newRows[] = $r;
         }
         
