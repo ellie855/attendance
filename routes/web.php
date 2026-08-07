@@ -84,9 +84,8 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->pref
     Route::get('/leave-requests',                                    [AdminLeaveRequestController::class, 'index'])->name('leave-requests.index');
     Route::put('/leave-requests/{leaveRequest}/approve',             [AdminLeaveRequestController::class, 'approve'])->name('leave-requests.approve');
     Route::put('/leave-requests/{leaveRequest}/reject',               [AdminLeaveRequestController::class, 'reject'])->name('leave-requests.reject');
+
 });
-
-
 
 
 

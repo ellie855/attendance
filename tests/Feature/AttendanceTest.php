@@ -81,3 +81,11 @@ test('他人の修正申請は編集画面を開けない', function () {
 
     $response->assertForbidden();
 });
+
+test('非管理者は admin ページにアクセスできない', function () {
+    $user = User::factory()->create(['role' => 'user']);
+
+    $response = $this->actingAs($user)->get('/admin/users');
+
+    $response->assertForbidden();
+});

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -75,6 +76,10 @@ class UserController extends Controller
         while (($row = fgetcsv($fp)) !== false) {
             $rowNum++;
             $row = array_map('trim', $row);
+            // 空行はスキップ（エラー扱いにしない）
+            if ($row === [''] || $row === [null] || (count($row) === 1 && $row[0] === '')) {
+                continue;
+            }
             // 列数チェック(name, email, password, roleの４列)
             if (count($row) < 4) {
                 $errors[] ="行{$rowNum}: 列数が足りません";
@@ -90,8 +95,8 @@ class UserController extends Controller
             [$name, $email, $password, $role] = $r['data'];
             $validator = Validator::make(compact('name', 'email', 'password', 'role'), [
                 'name'      => 'required|string|max:255',
-                'email'     => 'required|email',
-                'password'  => 'required|string|min:6',
+                'email'     => 'required|email|max:255',
+                'password'  => ['required', 'string', Password::defaults()],
                 'role'      => 'required|in:user,admin',
             ]);
             if ($validator->fails()) {
@@ -103,18 +108,21 @@ class UserController extends Controller
 
         // 4. 既存メールを一回で全部取得（N+1問題を回避）+ 小文字統一
         $emails = array_map('strtolower', array_column($validRows, 'email'));
-        $existingEmails = array_map('strtolower', User::whereIn('email', $emails)->pluck('email')->toArray());
+        // ↓キーに email を入れて0(1) 検索できるようにする
+        $existingEmails = array_flip(
+            array_map('strtolower', User::whereIn('email', $emails)->pluck('email')->toArray())
+        );
 
         // 5. 重複除外　+　CSV内での重複もチェック(大文字小文字を区別せず)
         $newRows = [];
-        $seenEmails = [];
+        $seenEmails = [];   // これもキー =email の形式で使う
         foreach ($validRows as $r) {
             $emailLower = strtolower($r['email']);
-            if (in_array($emailLower, $existingEmails) || in_array($emailLower, $seenEmails)) {
+            if (isset( $existingEmails[$emailLower]) || isset($seenEmails[$emailLower])) {
                 $errors[] = "行{$r['num']}({$r['email']}): このメールアドレスは既に使用されています";
                 continue;
             }
-            $seenEmails[] = $emailLower;
+            $seenEmails[$emailLower] = true;
             $r['email'] = $emailLower;   // 保存も小文字で統一
             $newRows[] = $r;
         }
@@ -144,10 +152,14 @@ class UserController extends Controller
         $message = "{$imported}件のユーザーを登録しました ({$elapsed}秒)";
         if (!empty($errors)) {
             $message .= '(' . count($errors) . '件スキップ)';
-            return redirect()->route('admin.users.index')
-                ->with('success', $message)
-                ->with('import_errors', $errors);
         }
+
+        // 0件登録なら　error 扱い、それ以外は success
+        $flashkey = $imported === 0 ? 'error' : 'success';
+
+        return redirect()->route('admin.users.index')
+            ->with('success', $message)
+            ->with('import_errors', $errors);
 
         return redirect()->route('admin.users.index')
             ->with('success', $message);
