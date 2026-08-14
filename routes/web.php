@@ -61,7 +61,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications',                                 [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/{id}/read',                       [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::get('/reports/monthly',                               [ReportController::class, 'monthly'])->name('reports.monthly');
-    Route::get('/reports/monthly/csv',                               [ReportController::class, 'monthlyCsv'])->name('reports.monthly.csv');
+    Route::get('/reports/monthly/csv',                           [ReportController::class, 'monthlyCsv'])->name('reports.monthly.csv');
+    Route::get('billing',                                        [\App\Http\Controllers\BillingController::class, 'index'])->name('billing.index');
+    Route::post('billing/checkout',                              [\App\Http\Controllers\BillingController::class, 'checkout'])->name('billing.checkout');
+    Route::get('/billing/success',                               [\App\Http\Controllers\BillingController::class, 'success'])->name('billing.success');
+    Route::get('/billing/cancel',                                [\App\Http\Controllers\BillingController::class, 'cancel'])->name('billing.cancel');
     Route::get('/leave-requests',                                [LeaveRequestController::class, 'index'])->name('leave-requests.index');
     Route::get('/leave-requests/create',                         [LeaveRequestController::class, 'create'])->name('leave-requests.create');
     Route::post('/leave-requests',                               [LeaveRequestController::class, 'store'])->name('leave-requests.store');
