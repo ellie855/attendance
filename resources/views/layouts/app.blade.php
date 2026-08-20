@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body { font-family: 'BIZ UDPGothic', 'Space Grotesk', sans-serif; max-width: none; margin: 40px 40px 40px 280px; padding: 0 20px; color: #1a1a1a; }
         h1 { font-family: 'Space Grotesk', 'BIZ UDPGothic', sans-serif; font-weight: 700; border-bottom: 2px solid #333; padding-bottom: 8px; letter-spacing: -0.5px; }
@@ -277,7 +278,7 @@
             <a href="{{ route('reports.monthly') }}" class="sidebar-link">
                 <i class="bi bi-bar-chart-line-fill sidebar-icon"></i>
                 <span class="sidebar-label">月次レポート</span>
-            </span>
+            </a>
             <a href="/posts" class="sidebar-link">
                 <i class="bi bi-megaphone-fill sidebar-icon"></i>
                 <span class="sidebar-label">掲示板</span>
@@ -296,6 +297,10 @@
                 </a>
             @endauth
 
+            <a href="{{ route('billing.index') }}" class="sidebar-link">
+                <i class="bi bi-gem sidebar-icon"></i>
+                <span class="sidebar-label">料金プラン</span>
+            </a>
 
             @auth
                 @if (auth()->user()->isAdmin())
