@@ -53,6 +53,18 @@ class UserController extends Controller
         $request->validate([
             'csv' => 'required|file|mimes:csv,txt|max:2048',
         ]);
+        // Free加入者は上限チェック
+        if (! auth()->user()->subscribed('default')) {
+            $limit       = config('billing.free_user_limit');
+            $existing   = User::count();
+            $csvRows     = max(0, count(file($request->file('csv')->getRealPath())) - 1);
+
+            if ($existing + $csvRows > $limit) {
+                return back()->with('error',
+                    "Freeプランは{$limit}人までです（現在:{$existing}人 + CSV:{$csvRows}人 = 上限超過)"
+                );
+            }
+        }
 
         $path = $request->file('csv')->store('imports');
 
@@ -61,5 +73,7 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'CSVのインポート処理を開始しました（バックグラウンドで実行中)');
     }
+
+
 
 }

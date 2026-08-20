@@ -14,10 +14,19 @@
             <a href="{{ route('reports.monthly', ['ym' => $nextMonth]) }}"
                 style="padding: 6px 12px; background: #06c; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">翌月 ▶</a>
 
-                <a href="{{ route('reports.monthly.csv', ['ym' => $targetMonth->format('Y-m')]) }}"
-                    style="padding: 6px 12px; background: #10b981; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; margin-left: 12px">
-                    <i class="bi bi-download"></i> CSV
-                </a>
+                @if (auth()->user()->role === 'admin' || auth()->user()->subscribed('default'))
+                    {{-- Proまたは 管理者:通常のダウンロードボタン --}}
+                    <a href="{{ route('reports.monthly.csv', ['ym' => $targetMonth->format('Y-m')]) }}"
+                        style="padding: 6px 12px; background: #10b981; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; margin-left: 12px">
+                        <i class="bi bi-download"></i> CSV
+                    </a>
+                @else
+                    {{-- Free:無効化ボタン + Pro 誘導ラベル --}}
+                    <span title="Proプランで利用可能"
+                        style="padding: 6px 12px; background: #9ca3af; color: white; border-radius: 4px; font-size: 13px; margin-left: 12px; cursor: not-allowed;">
+                        <i class="bi bi-download"></i>CSV(Proで利用可能)
+                    </span>
+                @endif
         </div>
     </div>
 

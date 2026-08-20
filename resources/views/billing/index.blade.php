@@ -6,6 +6,22 @@
 <div class="max-w-4xl mx-auto py-10 px-4">
     <h1 class="text-3xl font-bold text-center mb-8">料金プラン</h1>
 
+    {{-- Pro加入中ならバナー表示 --}}
+    @auth
+        @if (auth()->user()->subscribed('default'))
+            <div style="background: #dbeafe; border: 1px solid #93c5fd; color: #1e3a8a; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>✨ Proプランご利用中</strong>
+                    <div style="font-size: 13px; margin-top: 4px;">サブスクの管理・解約はこちら</div>
+                </div>
+                <a href="{{ route('billing.manage') }}"
+                    style="padding: 8px 16px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; font-size: 14px;">
+                    管理画面へ
+                </a>
+            </div>
+        @endif
+    @endauth
+
     <div class="grid md:grid-cols-2 gap-6">
 
         {{-- Freeプラン --}}

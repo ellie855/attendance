@@ -19,6 +19,25 @@
 <div class="card">
     <h1 class="card-title">ユーザー管理</h1>
 
+@php
+    $userCount = \App\Models\User::count();
+    $isPro = auth()->user()->role === 'admin' || auth()->user()->subscribed('default');
+    $freeLimit = config('billing.free_user_limit');
+@endphp
+
+<div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 12px 16px; margin-top: 12px; font-size: 13px;">
+    <i class="bi bi-people-fill"></i>
+    登録済み:<strong>{{ $userCount }}人</strong> /
+    @if ($isPro)
+        <span style="color: #059669; font-weight: bold;">無制限(Pro / 管理者)</span>
+    @else
+        <span style="color: #dc2626;">上限: {{ $freeLimit }}人(Freeプラン)</span>
+        @if ($userCount >= $freeLimit)
+            <span style="margin-left: 12px; color: #dc2626; font-weight: bold;">⚠上限に達しています</span>
+        @endif
+    @endif
+</div>
+
 {{-- CSVインポートフォーム --}}
 <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin-top: 16px;">
     <div style="font-weight: bold; margin-bottom: 8px;">
