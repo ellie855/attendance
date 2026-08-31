@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateAttendanceRequest;
 use App\Models\Attendance;
 use App\Enums\AttendanceType;
+use App\Services\AttendanceSummaryService;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
-    public function index()
+    public function index(AttendanceSummaryService $summary)
     {
         $user = auth()->user();
         $todayNote = $user->dailyNotes()->whereDate('date', today())->first();
@@ -80,7 +81,7 @@ class AttendanceController extends Controller
             ->get();
 
         //今月の総勤務秒数（休憩差引済み)
-        $monthTotalSec = $this->calculateWorkSeconds($monthRecords);
+        $monthTotalSec = $summary->calculateWorkSeconds($monthRecords);
         $monthHours = floor($monthTotalSec / 3600);
 
         // 出勤日数（streak 計算にも使う）
@@ -112,7 +113,7 @@ class AttendanceController extends Controller
             ->get();
 
         // 今週の総勤務秒数（休憩差引済み）
-        $weekTotalSec = $this->calculateWorkSeconds($weekRecords);
+        $weekTotalSec = $summary->calculateWorkSeconds($weekRecords);
 
         $weekHours = floor($weekTotalSec / 3600);
         $weekMinutes = floor(($weekTotalSec % 3600) / 60);
@@ -229,37 +230,5 @@ class AttendanceController extends Controller
         $this->authorize('delete', $attendance);
         $attendance->delete();
         return redirect('/attendances');
-    }
-
-    /**
-     * 打刻レコード一覧から、休憩を差し引いた勤務秒数の合計を返す
-     * （出勤～退勤の区間ごとに、その間の休憩時間を引いて集計）
-     */
-    private function calculateWorkSeconds($records): int
-    {
-        $total = 0;
-        $clockIn = null;
-        $breakStart = null;
-        $breakSec = 0;
-
-        foreach ($records as $r) {
-            if ($r->type === AttendanceType::ClockIn) {
-                $clockIn = $r->created_at;
-                $breakSec = 0;
-                $breakStart = null;
-            } elseif ($r->type === AttendanceType::BreakStart && $clockIn) {
-                $breakStart = $r->created_at;
-            } elseif ($r->type === AttendanceType::BreakEnd && $breakStart) {
-                $breakSec += $breakStart->diffInSeconds($r->created_at);
-                $breakStart = null;
-            } elseif ($r->type === AttendanceType::ClockOut && $clockIn) {
-                $total += $clockIn->diffInSeconds($r->created_at) - $breakSec;
-                $clockIn = null;
-                $breakSec = 0;
-                $breakStart = null;
-            }
-        }
-
-        return $total;
     }
 }
