@@ -37,7 +37,7 @@ class AttendancePolicy
      */
     public function update(User $user, Attendance $attendance): bool
     {
-        return $user->isAdmin() || $user->id === $attendance->user_id;
+        return $user->isAdmin();
     }
 
     /**
@@ -45,7 +45,7 @@ class AttendancePolicy
      */
     public function delete(User $user, Attendance $attendance): bool
     {
-        return $user->isAdmin() || $user->id === $attendance->user_id;
+        return $user->isAdmin();
     }
 
     /**
