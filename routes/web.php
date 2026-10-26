@@ -78,17 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/leave-requests/{leaveRequest}',              [LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
 
     // AIコンサル LP の確認用 (ファイル本体は storage/app/private に置き、Git には含めない)
-    // 画像を相対パス (images/...) で読めるように、/tiro-ai-lp/index.html の形で開く
-    Route::get('/tiro-ai-lp', fn () => redirect('/tiro-ai-lp/index.html'))->name('tiro-ai-lp');
-    Route::get('/tiro-ai-lp/{file}', function (string $file) {
-        $base = realpath(storage_path('app/private/tiro-ai-lp'));
-        $path = realpath($base . DIRECTORY_SEPARATOR . $file);
-
-        // フォルダの外のファイル (../ など) は返さない
-        abort_unless($base && $path && str_starts_with($path, $base . DIRECTORY_SEPARATOR) && is_file($path), 404);
-
-        return response()->file($path, ['Cache-Control' => 'no-store']);
-    })->where('file', '.*');
+    Route::get('/tiro-ai-lp', fn () => response()->file(storage_path('app/private/tiro-ai-lp/index.html'), ['Cache-Control' => 'no-store']))->name('tiro-ai-lp');
 });
 
 
