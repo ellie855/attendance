@@ -329,6 +329,13 @@
                 @endif
             @endauth
 
+            @auth
+                <a href="{{ route('tiro-ai-lp') }}" class="sidebar-link" target="_blank" rel="noopener">
+                    <i class="bi bi-file-earmark-richtext sidebar-icon"></i>
+                    <span class="sidebar-label">AIコンサル LP</span>
+                </a>
+            @endauth
+
         </nav>
 
         <div class="sidebar-footer">

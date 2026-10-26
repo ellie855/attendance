@@ -76,6 +76,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/leave-requests/{leaveRequest}/edit',            [LeaveRequestController::class, 'edit'])->name('leave-requests.edit');
     Route::put('/leave-requests/{leaveRequest}',                 [LeaveRequestController::class, 'update'])->name('leave-requests.update');
     Route::delete('/leave-requests/{leaveRequest}',              [LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
+
+    // AIコンサル LP の確認用 (ファイル本体は storage/app/private に置き、Git には含めない)
+    Route::get('/tiro-ai-lp', fn () => response()->file(storage_path('app/private/tiro-ai-lp/index.html'), ['Cache-Control' => 'no-store']))->name('tiro-ai-lp');
 });
 
 
